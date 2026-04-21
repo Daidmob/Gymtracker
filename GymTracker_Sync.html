@@ -543,7 +543,7 @@ document.getElementById("prev-week").onclick=function(){ state.week=Math.max(1,s
 document.getElementById("next-week").onclick=function(){ state.week=Math.min(52,state.week+1); render(); };
 
 load();
-render();
+
 if(syncCfg.url && navigator.onLine){ setSyncDot("ok"); }
 </script>
 </body>
