@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GymTracker">
+<meta name="theme-color" content="#0a0a0f">
+<title>GymTracker Pro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0f;--card:#111120;--card2:#15152a;
+  --border:#1e1e35;--border2:#2a2a50;
+  --purple:#7c3aed;--pl:#a78bfa;
+  --green:#4ade80;--red:#f87171;--gold:#FFD700;--blue:#38bdf8;
+  --text:#e8e8f0;--muted:#6060a0;--dim:#30304a;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:monospace;-webkit-font-smoothing:antialiased;font-size:16px}
+button,input,textarea{font-family:monospace}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+#app{max-width:480px;margin:0 auto;padding-bottom:90px}
+
+/* HEADER */
+#hdr{background:linear-gradient(135deg,#0f0f1a,#1a0a2e);padding:16px 16px 0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.htop{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px}
+.wlabel{font-size:10px;color:var(--muted);letter-spacing:3px}
+.wnum{font-size:26px;font-weight:700;color:#fff}
+.wnum b{color:var(--pl)}
+.ppct{font-size:24px;font-weight:700}
+.sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle}
+.sync-dot.ok{background:var(--green)}
+.sync-dot.off{background:var(--muted)}
+.sync-dot.spin{background:var(--blue);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.pbar-wrap{height:3px;background:#1a1a30;border-radius:2px;margin-bottom:10px}
+.pbar-fill{height:100%;border-radius:2px;transition:width .4s;background:linear-gradient(90deg,var(--purple),var(--pl))}
+.wnav{display:flex;align-items:center;gap:6px;padding-bottom:10px}
+.nbtn{background:var(--card2);border:1px solid var(--border2);color:#a0a0c0;border-radius:8px;padding:8px 14px;font-size:18px;cursor:pointer}
+.dtabs{display:flex;gap:4px;flex:1}
+.dtab{flex:1;padding:8px 2px;border-radius:8px;border:none;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;color:var(--muted);background:var(--card)}
+.dtab.on{background:var(--purple);color:#fff}
+.vtabs{display:flex;border-bottom:1px solid var(--border)}
+.vtab{flex:1;padding:10px 0;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--dim);border:none;border-bottom:2px solid transparent;cursor:pointer;background:none}
+.vtab.on{color:var(--pl);border-bottom-color:var(--purple)}
+
+#content{padding:12px}
+.sec-lbl{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;margin-top:4px}
+
+/* EX CARD */
+.ecard{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;padding:14px;position:relative;overflow:hidden}
+.ecard.done{background:#0a1f0a;border-color:#1a4a1a}
+.etop-line{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),#22d3ee)}
+.ehdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.ename{font-size:16px;font-weight:700}
+.ecard.done .ename{color:var(--green)}
+.ehint{font-size:10px;color:var(--dim);margin-top:2px}
+.sbadge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.wrow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.rlbl{font-size:11px;color:var(--muted);min-width:38px}
+.abtn{background:var(--card2);border:1px solid var(--border2);color:#a0a0c0;border-radius:8px;padding:8px 12px;font-size:16px;font-weight:700;cursor:pointer;min-width:38px}
+.winput{flex:1;background:#0a0a15;border:1px solid var(--border2);border-radius:8px;color:#fff;font-size:20px;font-weight:700;padding:8px 0;text-align:center}
+.unit{font-size:11px;color:var(--muted)}
+.srow{display:flex;gap:6px;margin-bottom:10px}
+.scol{flex:1;text-align:center}
+.slbl2{font-size:9px;color:var(--dim);margin-bottom:4px}
+.sinput{width:100%;background:#0a0a15;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-size:15px;font-weight:600;padding:7px 2px;text-align:center}
+.sinput.hit{color:var(--green);border-color:#1a4a1a}
+.crow{display:flex;gap:8px}
+.cbtn{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;background:transparent;letter-spacing:1px}
+.cbtn.yes.on{border-color:var(--green);background:#052010;color:var(--green)}
+.cbtn.no.on{border-color:var(--red);background:#200505;color:var(--red)}
+.nprev{margin-top:10px;padding:8px 12px;background:#0a0a20;border-radius:6px;border:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center}
+.nlbl{font-size:10px;color:var(--dim)}
+.nval{font-size:15px;font-weight:700;color:var(--pl)}
+
+/* HISTORY */
+.hcard{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;padding:14px}
+.hname{font-size:15px;font-weight:700;margin-bottom:10px}
+.hmax{font-size:11px;color:var(--gold)}
+.spark{display:flex;gap:2px;align-items:flex-end;height:36px}
+.sbar{flex:1;border-radius:2px;min-height:3px;background:linear-gradient(180deg,var(--purple),var(--pl));transition:height .3s}
+.sbar.e{background:var(--card2)}
+.shint{font-size:9px;color:var(--dim);margin-top:4px;text-align:right}
+
+/* SETTINGS */
+.scard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.stitle{font-size:15px;font-weight:700;margin-bottom:6px}
+.sdesc{font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6}
+.pbtn{display:block;width:100%;padding:12px 14px;margin-bottom:8px;background:#0a0a15;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-size:13px;text-align:left;cursor:pointer}
+.pbtn.on{background:#1e0a40;border-color:var(--purple);color:var(--pl);font-weight:700}
+.ibox{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:12px;font-size:11px;color:var(--dim);line-height:1.9}
+.dcard{background:#1a0505;border:1px solid #4a1010;border-radius:12px;padding:16px;margin-bottom:12px}
+.rbtn{width:100%;padding:10px;border-radius:8px;background:transparent;border:1px solid var(--red);color:var(--red);font-size:12px;font-weight:700;cursor:pointer}
+
+/* SYNC CARD */
+.sync-card{background:linear-gradient(135deg,#0a0a20,#0f0a1f);border:1px solid var(--purple);border-radius:12px;padding:16px;margin-bottom:12px}
+.sync-title{font-size:15px;font-weight:700;color:var(--pl);margin-bottom:6px}
+.sync-desc{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+.sync-input{width:100%;background:#0a0a15;border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:11px;padding:10px 12px;margin-bottom:10px;resize:none;outline:none}
+.sync-btn{width:100%;padding:12px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-bottom:8px}
+.sync-btn.primary{background:var(--purple);color:#fff}
+.sync-btn.secondary{background:var(--card2);border:1px solid var(--border2);color:var(--muted)}
+.sync-status{font-size:11px;padding:10px 12px;border-radius:8px;margin-top:8px;line-height:1.6}
+.sync-status.ok{background:#052010;border:1px solid #1a4a1a;color:var(--green)}
+.sync-status.err{background:#200505;border:1px solid #4a1010;color:var(--red)}
+.sync-status.info{background:#051530;border:1px solid #1a3060;color:var(--blue)}
+.wstep{display:flex;gap:8px;align-items:center;margin-top:10px}
+.stbtn{background:var(--card2);border:1px solid var(--border2);color:#a0a0c0;border-radius:8px;padding:10px 20px;font-size:16px;font-weight:700;cursor:pointer}
+.wbig{flex:1;text-align:center;font-size:32px;font-weight:700;color:var(--pl)}
+.wbig span{font-size:14px;color:var(--dim)}
+
+/* BOTTOM */
+#bbar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,var(--bg) 35%);padding:8px 16px 20px;display:flex;justify-content:center}
+.bpills{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:7px 18px;display:flex;gap:18px;font-size:11px}
+.bpill{cursor:pointer;color:var(--dim)}
+.bpill.p{color:var(--pl)}
+.bpill.f{color:var(--green)}
+
+/* STEPS */
+.steps{counter-reset:step;margin:0;padding:0;list-style:none}
+.steps li{display:flex;gap:12px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.6}
+.steps li::before{counter-increment:step;content:counter(step);min-width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:1px}
+.steps li b{color:var(--text)}
+.steps li a{color:var(--blue)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hdr">
+    <div class="htop">
+      <div>
+        <div class="wlabel">PROGRAMA 52 SEMANAS</div>
+        <div class="wnum">SEMANA <b id="wn">01</b></div>
+      </div>
+      <div style="text-align:right">
+        <div class="wlabel" style="display:flex;align-items:center;justify-content:flex-end;gap:4px">
+          SYNC<span class="sync-dot off" id="sync-dot"></span>
+        </div>
+        <div class="ppct" id="pn" style="color:var(--pl)">0%</div>
+      </div>
+    </div>
+    <div class="pbar-wrap"><div class="pbar-fill" id="pb" style="width:0%"></div></div>
+    <div class="wnav">
+      <button class="nbtn" id="prev-week">&#8249;</button>
+      <div class="dtabs" id="dtabs"></div>
+      <button class="nbtn" id="next-week">&#8250;</button>
+    </div>
+    <div class="vtabs" id="vtabs"></div>
+  </div>
+  <div id="content"></div>
+</div>
+<div id="bbar"><div class="bpills" id="bpills"></div></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────
+var DAYS = {
+  "Lunes":     ["Chest Press","Pec Deck","Pullover","Rope Pushdown","Dips","Leg Extension","Lunges"],
+  "Miercoles": ["Seated Row","Lat Pulldown","Back Extension","Cable Curl","Hammer Curl","Leg Press","Calf Raise"],
+  "Viernes":   ["Shoulder Press","Lateral Raise","Upright Row","Pushdown","Leg Curl"]
+};
+var DAY_LABELS = {"Lunes":"Lunes","Miercoles":"Miércoles","Viernes":"Viernes"};
+var SETS = [12,10,8];
+var PROG = {"conservative":"Conservadora (+2.5%)","moderate":"Moderada (+5%)","aggressive":"Agresiva (+7.5%)"};
+var PROG_F = {"conservative":1.025,"moderate":1.05,"aggressive":1.075};
+var S_CFG = {
+  "PR":      {icon:"🏆",label:"PR",      color:"#FFD700",bg:"#2a2200"},
+  "SUBIR":   {icon:"↑", label:"Subir",   color:"#4ade80",bg:"#052010"},
+  "MANT":    {icon:"→", label:"Igual",   color:"#60a5fa",bg:"#051530"},
+  "BAJAR":   {icon:"↓", label:"Bajar",   color:"#f87171",bg:"#200505"}
+};
+
+var state = {week:1, day:"Lunes", view:"workout", prog:"moderate"};
+var db = {};
+var syncCfg = {url:"", lastSync:null, status:""};
+
+function load(){
+  try{ db = JSON.parse(localStorage.getItem("gt6")||"{}"); }catch(e){ db={}; }
+  try{ syncCfg = JSON.parse(localStorage.getItem("gt6_sync")||"{}"); syncCfg.url=syncCfg.url||""; syncCfg.lastSync=syncCfg.lastSync||null; syncCfg.status=syncCfg.status||""; }catch(e){ syncCfg={url:"",lastSync:null,status:""}; }
+}
+function save(){
+  try{ localStorage.setItem("gt6", JSON.stringify(db)); }catch(e){}
+  try{ localStorage.setItem("gt6_sync", JSON.stringify(syncCfg)); }catch(e){}
+}
+
+function ekey(w,d,ex){ return "e_"+w+"_"+d+"_"+ex; }
+function hkey(d,ex){ return "h_"+d+"_"+ex; }
+function getE(w,d,ex){ return db[ekey(w,d,ex)]||{weight:0,completed:null,sets:[null,null,null]}; }
+function setE(w,d,ex,upd){ var k=ekey(w,d,ex); db[k]=Object.assign({},db[k]||{weight:0,completed:null,sets:[null,null,null]},upd); save(); }
+function getH(d,ex){ return db[hkey(d,ex)]||[]; }
+function addH(d,ex,w){ if(!w)return; var h=db[hkey(d,ex)]||[]; if(h.indexOf(w)===-1){db[hkey(d,ex)]=h.concat([w]);save();} }
+
+function r25(v){ return Math.round(v*4)/4; }
+function nextW(cur,comp){ if(!cur)return 0; var f=comp==="SI"?PROG_F[state.prog]:comp==="NO"?0.95:1; return r25(cur*f); }
+function calcStatus(cur,hist){
+  if(!cur||!hist.length)return null;
+  var mx=Math.max.apply(null,hist); var last=hist[hist.length-1];
+  if(cur>mx)return "PR"; if(cur>last)return "SUBIR"; if(cur===last)return "MANT"; return "BAJAR";
+}
+
+// ─── GOOGLE SHEETS SYNC ─────────────────────────────────────────
+// Uses a Google Apps Script Web App as a bridge.
+// The script URL is set by the user in Settings > Sincronización.
+
+function setSyncDot(state_){
+  var d=document.getElementById("sync-dot");
+  if(!d)return;
+  d.className="sync-dot "+(state_==="ok"?"ok":state_==="spin"?"spin":"off");
+}
+
+function doSync(){
+  if(!syncCfg.url){ setSyncDot("off"); return; }
+  setSyncDot("spin");
+  var payload = JSON.stringify(db);
+  // Send to Google Apps Script
+  fetch(syncCfg.url, {
+    method:"POST",
+    mode:"no-cors",
+    headers:{"Content-Type":"text/plain"},
+    body: payload
+  }).then(function(){
+    syncCfg.lastSync = new Date().toISOString();
+    syncCfg.status = "ok";
+    save();
+    setSyncDot("ok");
+    setTimeout(function(){ setSyncDot(syncCfg.url?"ok":"off"); },3000);
+  }).catch(function(err){
+    syncCfg.status = "error";
+    save();
+    setSyncDot("off");
+  });
+}
+
+function doSyncLoad(){
+  if(!syncCfg.url) return;
+  setSyncDot("spin");
+  fetch(syncCfg.url+"?action=load")
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d && typeof d === "object"){
+      db = d;
+      save();
+      setSyncDot("ok");
+      render();
+    }
+  }).catch(function(){
+    setSyncDot("off");
+  });
+}
+
+// Auto-sync after each action when online
+function autoSync(){
+  if(syncCfg.url && navigator.onLine){ doSync(); }
+}
+
+// ─── RENDER ─────────────────────────────────────────────────────
+function render(){ renderHeader(); renderContent(); renderBottom(); }
+
+function renderHeader(){
+  document.getElementById("wn").textContent=String(state.week).padStart(2,"0");
+  var exs=DAYS[state.day];
+  var done=exs.filter(function(ex){ return getE(state.week,state.day,ex).completed==="SI"; }).length;
+  var pct=Math.round(done/exs.length*100);
+  var pn=document.getElementById("pn"); pn.textContent=pct+"%";
+  pn.style.color=pct===100?"var(--green)":"var(--pl)";
+  var pb=document.getElementById("pb"); pb.style.width=pct+"%";
+  pb.style.background=pct===100?"linear-gradient(90deg,var(--green),#22d3ee)":"linear-gradient(90deg,var(--purple),var(--pl))";
+
+  var dt=document.getElementById("dtabs"); dt.innerHTML="";
+  Object.keys(DAYS).forEach(function(d){
+    var btn=document.createElement("button");
+    btn.className="dtab"+(d===state.day?" on":"");
+    btn.textContent=DAY_LABELS[d].slice(0,3).toUpperCase();
+    btn.onclick=(function(dd){ return function(){ state.day=dd; render(); }; })(d);
+    dt.appendChild(btn);
+  });
+
+  var vt=document.getElementById("vtabs"); vt.innerHTML="";
+  [["workout","ENTRENO"],["history","HISTORIAL"],["settings","CONFIG"]].forEach(function(pair){
+    var btn=document.createElement("button");
+    btn.className="vtab"+(pair[0]===state.view?" on":"");
+    btn.textContent=pair[1];
+    btn.onclick=(function(v){ return function(){ state.view=v; render(); }; })(pair[0]);
+    vt.appendChild(btn);
+  });
+
+  setSyncDot(syncCfg.url?(syncCfg.status==="ok"?"ok":"spin"):"off");
+}
+
+function renderContent(){
+  var c=document.getElementById("content"); c.innerHTML="";
+  if(state.view==="workout") buildWorkout(c);
+  else if(state.view==="history") buildHistory(c);
+  else buildSettings(c);
+}
+
+function buildWorkout(c){
+  var exs=DAYS[state.day];
+  var lbl=document.createElement("div"); lbl.className="sec-lbl";
+  lbl.textContent=DAY_LABELS[state.day]+" · "+exs.length+" ejercicios"; c.appendChild(lbl);
+
+  exs.forEach(function(ex){
+    var entry=getE(state.week,state.day,ex);
+    var hist=getH(state.day,ex);
+    var status=calcStatus(entry.weight,hist);
+    var done=entry.completed==="SI";
+
+    var card=document.createElement("div"); card.className="ecard"+(done?" done":"");
+    if(done){ var tl=document.createElement("div"); tl.className="etop-line"; card.appendChild(tl); }
+
+    // header
+    var hd=document.createElement("div"); hd.className="ehdr";
+    var left=document.createElement("div");
+    var nm=document.createElement("div"); nm.className="ename"; nm.textContent=ex; left.appendChild(nm);
+    var hint=document.createElement("div"); hint.className="ehint"; hint.textContent=SETS.map(function(s){return s+" reps";}).join(" · "); left.appendChild(hint);
+    hd.appendChild(left);
+    if(status){ var sc=S_CFG[status]; var badge=document.createElement("span"); badge.className="sbadge"; badge.textContent=sc.icon+" "+sc.label; badge.style.cssText="background:"+sc.bg+";color:"+sc.color+";border:1px solid "+sc.color+"30"; hd.appendChild(badge); }
+    card.appendChild(hd);
+
+    // weight
+    var wr=document.createElement("div"); wr.className="wrow";
+    var rl=document.createElement("div"); rl.className="rlbl"; rl.textContent="PESO"; wr.appendChild(rl);
+    var bm=document.createElement("button"); bm.className="abtn"; bm.textContent="−";
+    bm.onclick=(function(e){ return function(){ var cur=getE(state.week,state.day,e).weight||0; doWeight(e,Math.max(0,r25(cur-2.5))); }; })(ex);
+    wr.appendChild(bm);
+    var wi=document.createElement("input"); wi.type="number"; wi.step="0.25"; wi.min="0"; wi.className="winput";
+    wi.value=entry.weight||""; wi.placeholder="0";
+    wi.oninput=(function(e,inp){ return function(){ doWeight(e,parseFloat(inp.value)||0); }; })(ex,wi);
+    wr.appendChild(wi);
+    var u=document.createElement("span"); u.className="unit"; u.textContent="kg"; wr.appendChild(u);
+    var bp=document.createElement("button"); bp.className="abtn"; bp.textContent="+";
+    bp.onclick=(function(e){ return function(){ var cur=getE(state.week,state.day,e).weight||0; doWeight(e,r25(cur+2.5)); }; })(ex);
+    wr.appendChild(bp); card.appendChild(wr);
+
+    // sets
+    var sr=document.createElement("div"); sr.className="srow";
+    SETS.forEach(function(target,si){
+      var sc2=document.createElement("div"); sc2.className="scol";
+      var sl=document.createElement("div"); sl.className="slbl2"; sl.textContent="S"+(si+1)+" ("+target+")"; sc2.appendChild(sl);
+      var sin=document.createElement("input"); sin.type="number"; sin.min="0"; sin.max="30"; sin.className="sinput";
+      var sv=entry.sets?entry.sets[si]:null; sin.value=sv!=null?sv:""; sin.placeholder=String(target);
+      if(sv!=null&&sv>=target) sin.classList.add("hit");
+      sin.onchange=(function(e,s,inp){ return function(){ var v=inp.value===""?null:parseInt(inp.value); var en=getE(state.week,state.day,e); var sets=(en.sets||[null,null,null]).slice(); sets[s]=v; setE(state.week,state.day,e,{sets:sets}); if(v!=null&&v>=SETS[s])inp.classList.add("hit"); else inp.classList.remove("hit"); autoSync(); }; })(ex,si,sin);
+      sc2.appendChild(sin); sr.appendChild(sc2);
+    });
+    card.appendChild(sr);
+
+    // complete
+    var cr=document.createElement("div"); cr.className="crow";
+    [["SI","✓ Completado","yes"],["NO","✗ No hecho","no"]].forEach(function(pair){
+      var btn=document.createElement("button");
+      btn.className="cbtn "+pair[2]+(entry.completed===pair[0]?" on":"");
+      btn.textContent=pair[0]==="SI"?"✓ Completado":"✗ No hecho";
+      btn.onclick=(function(e,v){ return function(){ doComplete(e,v); }; })(ex,pair[0]);
+      cr.appendChild(btn);
+    });
+    card.appendChild(cr);
+
+    // next week preview
+    if(entry.weight&&entry.completed){
+      var nw=nextW(entry.weight,entry.completed);
+      var np=document.createElement("div"); np.className="nprev";
+      var nl=document.createElement("span"); nl.className="nlbl"; nl.textContent="PRÓXIMA SEMANA →";
+      var nv=document.createElement("span"); nv.className="nval"; nv.textContent=nw+" kg";
+      np.appendChild(nl); np.appendChild(nv); card.appendChild(np);
+    }
+    c.appendChild(card);
+  });
+}
+
+function buildHistory(c){
+  var exs=DAYS[state.day];
+  var lbl=document.createElement("div"); lbl.className="sec-lbl"; lbl.textContent="Historial — "+DAY_LABELS[state.day]; c.appendChild(lbl);
+  exs.forEach(function(ex){
+    var hist=getH(state.day,ex);
+    var maxW=hist.length?Math.max.apply(null,hist):0;
+    var wws=[]; for(var i=1;i<=state.week;i++) wws.push(getE(i,state.day,ex).weight||null);
+    var recent=wws.slice(-12);
+    var hc=document.createElement("div"); hc.className="hcard";
+    var hh=document.createElement("div"); hh.style="display:flex;justify-content:space-between;margin-bottom:10px";
+    var hn=document.createElement("div"); hn.className="hname"; hn.textContent=ex; hh.appendChild(hn);
+    if(maxW){ var hm=document.createElement("div"); hm.className="hmax"; hm.textContent="🏆 Máx: "+maxW+" kg"; hh.appendChild(hm); }
+    hc.appendChild(hh);
+    var sp=document.createElement("div"); sp.className="spark";
+    recent.forEach(function(w){ var b=document.createElement("div"); var h2=(maxW&&w)?Math.max(4,(w/maxW)*32):3; b.className="sbar"+(w?"":" e"); b.style.height=h2+"px"; sp.appendChild(b); });
+    hc.appendChild(sp);
+    var sh=document.createElement("div"); sh.className="shint"; sh.textContent="Últimas "+recent.filter(Boolean).length+" semanas con datos";
+    hc.appendChild(sh); c.appendChild(hc);
+  });
+}
+
+function buildSettings(c){
+  // ── SINCRONIZACIÓN ──
+  var sc=document.createElement("div"); sc.className="sync-card";
+  var st=document.createElement("div"); st.className="sync-title"; st.textContent="☁️ Sincronizar con Google Sheets"; sc.appendChild(st);
+  var sd=document.createElement("div"); sd.className="sync-desc";
+  sd.innerHTML='Guarda todos tus datos automáticamente en Google Sheets. Funciona offline en el gym y sincroniza cuando hay wifi.'; sc.appendChild(sd);
+
+  // Steps
+  var steps=document.createElement("ol"); steps.className="steps";
+  var stepsData=[
+    ['Ve a <a href="https://script.google.com/home" target="_blank" style="color:var(--blue)">script.google.com</a> en tu ordenador'],
+    ['Pulsa <b>"Nuevo proyecto"</b>'],
+    ['Borra todo el código y pega el código de abajo'],
+    ['Pulsa <b>Implementar → Nueva implementación</b>'],
+    ['Tipo: <b>App web</b>. Ejecutar como: <b>Yo</b>. Acceso: <b>Cualquier persona</b>'],
+    ['Copia la URL que te da y pégala aquí abajo'],
+  ];
+  stepsData.forEach(function(s){ var li=document.createElement("li"); li.innerHTML=s[0]; steps.appendChild(li); });
+  sc.appendChild(steps);
+
+  // Code box
+  var codeLabel=document.createElement("div"); codeLabel.style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:2px"; codeLabel.textContent="CÓDIGO PARA GOOGLE APPS SCRIPT:"; sc.appendChild(codeLabel);
+  var codeBox=document.createElement("textarea"); codeBox.className="sync-input"; codeBox.rows=3; codeBox.readOnly=true;
+  codeBox.style.fontFamily="monospace"; codeBox.style.fontSize="10px"; codeBox.style.color="var(--blue)";
+  codeBox.value=GAS_CODE;
+  codeBox.onclick=function(){ this.select(); try{document.execCommand("copy");}catch(e){} };
+  sc.appendChild(codeBox);
+  var copyHint=document.createElement("div"); copyHint.style="font-size:10px;color:var(--dim);margin-bottom:12px"; copyHint.textContent="Pulsa el código para copiarlo"; sc.appendChild(copyHint);
+
+  // URL input
+  var urlLabel=document.createElement("div"); urlLabel.style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:2px"; urlLabel.textContent="TU URL DE GOOGLE APPS SCRIPT:"; sc.appendChild(urlLabel);
+  var urlIn=document.createElement("input"); urlIn.type="url"; urlIn.className="sync-input"; urlIn.placeholder="https://script.google.com/macros/s/...";
+  urlIn.value=syncCfg.url||""; sc.appendChild(urlIn);
+
+  var saveBtn=document.createElement("button"); saveBtn.className="sync-btn primary"; saveBtn.textContent="💾 Guardar y sincronizar";
+  saveBtn.onclick=function(){
+    syncCfg.url=urlIn.value.trim(); save();
+    if(syncCfg.url){ showSyncStatus(sc,"spin","Conectando con Google Sheets...","info"); doSync(); setTimeout(function(){ showSyncStatus(sc,"ok","✓ Conectado. Los datos se sincronizan automáticamente al completar ejercicios.","ok"); },2500); }
+    else{ showSyncStatus(sc,"","URL vacía — sincronización desactivada","err"); }
+  };
+  sc.appendChild(saveBtn);
+
+  if(syncCfg.url){
+    var loadBtn=document.createElement("button"); loadBtn.className="sync-btn secondary"; loadBtn.textContent="⬇️ Cargar datos desde la nube";
+    loadBtn.onclick=function(){ showSyncStatus(sc,"spin","Cargando desde Google Sheets...","info"); doSyncLoad(); };
+    sc.appendChild(loadBtn);
+    var syncNow=document.createElement("button"); syncNow.className="sync-btn secondary"; syncNow.textContent="⬆️ Subir datos ahora";
+    syncNow.onclick=function(){ showSyncStatus(sc,"spin","Subiendo datos...","info"); doSync(); setTimeout(function(){ showSyncStatus(sc,"ok","✓ Datos subidos correctamente","ok"); },2000); };
+    sc.appendChild(syncNow);
+  }
+
+  if(syncCfg.lastSync){
+    var ls=document.createElement("div"); ls.className="sync-status ok";
+    ls.textContent="Última sincronización: "+new Date(syncCfg.lastSync).toLocaleString("es-ES"); sc.appendChild(ls);
+  }
+  c.appendChild(sc);
+
+  // ── PROGRESIÓN ──
+  var pc=document.createElement("div"); pc.className="scard";
+  var pt=document.createElement("div"); pt.className="stitle"; pt.textContent="Progresión de carga"; pc.appendChild(pt);
+  var pd=document.createElement("div"); pd.className="sdesc"; pd.textContent="% de aumento al completar todos los sets (SI). Si no completas (NO), baja 5% automático."; pc.appendChild(pd);
+  Object.keys(PROG).forEach(function(k){
+    var btn=document.createElement("button"); btn.className="pbtn"+(state.prog===k?" on":"");
+    btn.textContent=PROG[k]; btn.onclick=(function(kk){ return function(){ state.prog=kk; render(); }; })(k);
+    pc.appendChild(btn);
+  });
+  c.appendChild(pc);
+
+  // ── SEMANA ──
+  var wc=document.createElement("div"); wc.className="scard";
+  var wt=document.createElement("div"); wt.className="stitle"; wt.textContent="Semana actual"; wc.appendChild(wt);
+  var ws=document.createElement("div"); ws.className="wstep";
+  var b1=document.createElement("button"); b1.className="stbtn"; b1.textContent="−"; b1.onclick=function(){ state.week=Math.max(1,state.week-1); render(); };
+  var wb=document.createElement("div"); wb.className="wbig"; wb.innerHTML=state.week+' <span>/ 52</span>';
+  var b2=document.createElement("button"); b2.className="stbtn"; b2.textContent="+"; b2.onclick=function(){ state.week=Math.min(52,state.week+1); render(); };
+  ws.appendChild(b1); ws.appendChild(wb); ws.appendChild(b2); wc.appendChild(ws); c.appendChild(wc);
+
+  // ── INFO ──
+  var ic=document.createElement("div"); ic.className="scard";
+  var ib=document.createElement("div"); ib.className="ibox";
+  ib.innerHTML="✓ <b>SI</b> → Sube "+PROG[state.prog]+"<br>✗ <b>NO</b> → Baja 5%<br>🏆 <b>PR</b> → Nuevo récord<br>→ <b>Igual</b> → Mismo peso anterior<br>↑ <b>Subir</b> → Mejora respecto anterior";
+  ic.appendChild(ib); c.appendChild(ic);
+
+  // ── DANGER ──
+  var dc=document.createElement("div"); dc.className="dcard";
+  var dt2=document.createElement("div"); dt2.className="stitle"; dt2.style.color="var(--red)"; dt2.style.marginBottom="8px"; dt2.textContent="Zona de peligro"; dc.appendChild(dt2);
+  var rb=document.createElement("button"); rb.className="rbtn"; rb.textContent="🗑 Resetear todos los datos";
+  rb.onclick=function(){ if(confirm("¿Borrar TODOS los datos de entrenamiento? No se puede deshacer.")){ db={}; localStorage.removeItem("gt6"); render(); } };
+  dc.appendChild(rb); c.appendChild(dc);
+}
+
+function showSyncStatus(container, icon, msg, type){
+  var existing=container.querySelector(".sync-status-msg");
+  if(existing) existing.remove();
+  var el=document.createElement("div"); el.className="sync-status "+type+" sync-status-msg";
+  el.textContent=msg; container.appendChild(el);
+  setSyncDot(icon==="ok"?"ok":icon==="spin"?"spin":"off");
+}
+
+function renderBottom(){
+  var bp=document.getElementById("bpills"); bp.innerHTML="";
+  Object.keys(DAYS).forEach(function(d){
+    var exs=DAYS[d];
+    var done=exs.filter(function(ex){ return getE(state.week,d,ex).completed==="SI"; }).length;
+    var pill=document.createElement("span"); pill.className="bpill"+(done===exs.length?" f":done>0?" p":"");
+    pill.textContent=DAY_LABELS[d].slice(0,3)+" "+done+"/"+exs.length;
+    pill.onclick=(function(dd){ return function(){ state.day=dd; state.view="workout"; render(); }; })(d);
+    bp.appendChild(pill);
+  });
+}
+
+// ─── ACTIONS ────────────────────────────────────────────────────
+function doWeight(ex,val){ setE(state.week,state.day,ex,{weight:val}); if(val>0)addH(state.day,ex,val); render(); }
+function doComplete(ex,val){
+  var entry=getE(state.week,state.day,ex);
+  var nv=entry.completed===val?null:val;
+  setE(state.week,state.day,ex,{completed:nv});
+  if(entry.weight&&nv&&state.week<52){ var nw=nextW(entry.weight,nv); setE(state.week+1,state.day,ex,{weight:nw,completed:null,sets:[null,null,null]}); }
+  render(); autoSync();
+}
+
+// ─── APPS SCRIPT CODE ───────────────────────────────────────────
+var GAS_CODE = [
+"var SHEET_NAME = 'GymData';",
+"",
+"function doPost(e) {",
+"  var ss = SpreadsheetApp.getActiveSpreadsheet();",
+"  var sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);",
+"  var data = e.postData.contents;",
+"  var ts = new Date().toISOString();",
+"  sheet.appendRow([ts, data]);",
+"  return ContentService.createTextOutput(JSON.stringify({ok:true,ts:ts})).setMimeType(ContentService.MimeType.JSON);",
+"}",
+"",
+"function doGet(e) {",
+"  if(e.parameter.action === 'load') {",
+"    var ss = SpreadsheetApp.getActiveSpreadsheet();",
+"    var sheet = ss.getSheetByName(SHEET_NAME);",
+"    if(!sheet || sheet.getLastRow() < 1) return ContentService.createTextOutput('{}').setMimeType(ContentService.MimeType.JSON);",
+"    var last = sheet.getRange(sheet.getLastRow(), 2).getValue();",
+"    return ContentService.createTextOutput(last).setMimeType(ContentService.MimeType.JSON);",
+"  }",
+"  return ContentService.createTextOutput('{\"ok\":true}').setMimeType(ContentService.MimeType.JSON);",
+"}"
+].join("\n");
+
+// ─── INIT ────────────────────────────────────────────────────────
+document.getElementById("prev-week").onclick=function(){ state.week=Math.max(1,state.week-1); render(); };
+document.getElementById("next-week").onclick=function(){ state.week=Math.min(52,state.week+1); render(); };
+
+load();
+render();
+if(syncCfg.url && navigator.onLine){ setSyncDot("ok"); }
+</script>
+</body>
+</html>
